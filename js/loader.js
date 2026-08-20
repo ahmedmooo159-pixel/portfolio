@@ -13,6 +13,7 @@
   if (!loader) return;
 
   function dismiss() {
+    document.body.style.overflow = '';
     loader.classList.add('hidden');
     loader.addEventListener('transitionend', () => {
       if (loader.parentNode) loader.parentNode.removeChild(loader);
@@ -20,7 +21,11 @@
     document.dispatchEvent(new CustomEvent('portfolioReady'));
   }
 
-  if (prefersReducedMotion) { dismiss(); return; }
+  if (prefersReducedMotion) {
+    document.body.style.overflow = '';
+    dismiss();
+    return;
+  }
 
   // ── COMMANDS with type-by-type feel ─────────────────────────────────────
   const SCRIPT = [

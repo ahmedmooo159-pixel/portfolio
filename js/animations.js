@@ -25,6 +25,24 @@
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
     revealEls.forEach(el => revealObserver.observe(el));
+
+    // Skill Bar Expansion Observer
+    const skillBars = document.querySelectorAll('.skill-bar-item__fill');
+    const skillObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const target = entry.target;
+          const pct = target.getAttribute('data-width') || '85';
+          target.style.width = pct + '%';
+          skillObserver.unobserve(target);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    skillBars.forEach(bar => {
+      bar.style.width = '0%';
+      skillObserver.observe(bar);
+    });
   }
 
   /* ── NAV ACTIVE SECTION HIGHLIGHT ─────────────────────────────────────── */
