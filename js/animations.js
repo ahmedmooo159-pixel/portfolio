@@ -76,9 +76,10 @@
   const roleEl = document.getElementById('heroRoleText');
   if (roleEl && !prefersReducedMotion) {
     const roles = [
-      'Full-Stack .NET Developer',
-      'C# & ASP.NET Engineer',
-      'Web Systems Builder',
+      'Freelance Web Developer',
+      'Full-Stack JS / Node.js Builder',
+      'Expanding into .NET Full-Stack',
+      'Software Engineering Student',
     ];
     let rIdx = 0, cIdx = 0, deleting = false;
 

@@ -21,33 +21,28 @@
     ],
 
     whoami: () => [
-      { t: 'out--highlight', v: 'Ahmed Mourad Araby Sayed' },
-      { t: 'out', v: 'Role      : Full-Stack .NET Developer' },
-      { t: 'out', v: 'Education : Delta Technological University, Year 4' },
-      { t: 'out', v: 'Track     : IT — Software Engineering' },
+      { t: 'out--highlight', v: 'Ahmed Mourad' },
+      { t: 'out', v: 'Role      : Software Engineering Student & Freelance Web Developer' },
+      { t: 'out', v: 'Core Stack: JavaScript (ES6+), Node.js, Express, Firebase, Supabase' },
+      { t: 'out', v: 'Learning  : C# / .NET Core Full-Stack' },
+      { t: 'out', v: 'Education : Delta Technological University (Year 4)' },
       { t: 'out', v: 'Location  : Egypt' },
       { t: 'out', v: 'Phone     : 01091728680' },
     ],
 
     skills: () => [
-      { t: 'out', v: 'Backend' },
-      { t: 'bar', v: 'C#          ██████████  Expert' },
-      { t: 'bar', v: '.NET Core   █████████░  Advanced' },
-      { t: 'bar', v: 'ASP.NET     █████████░  Advanced' },
-      { t: 'bar', v: 'EF Core     ████████░░  Proficient' },
+      { t: 'out--highlight', v: '[Core Skills — Production Ready]' },
+      { t: 'out', v: '  • JavaScript (ES6+), Node.js, Express.js, REST APIs' },
+      { t: 'out', v: '  • Firebase (Firestore, Auth), Supabase (PostgreSQL)' },
+      { t: 'out', v: '  • HTML5, CSS3, Modern UI/UX, Git/GitHub' },
       { t: 'out', v: '' },
-      { t: 'out', v: 'Frontend' },
-      { t: 'bar', v: 'JavaScript  ████████░░  Proficient' },
-      { t: 'bar', v: 'HTML / CSS  █████████░  Advanced' },
-      { t: 'out', v: '' },
-      { t: 'out', v: 'Database' },
-      { t: 'bar', v: 'SQL Server  █████████░  Advanced' },
-      { t: 'bar', v: 'Supabase    ████████░░  Proficient' },
+      { t: 'out--highlight', v: '[Currently Learning — In Progress]' },
+      { t: 'out', v: '  • C#, .NET Core, OOP Fundamentals, ASP.NET Web APIs' },
     ],
 
     projects: () => [
       { t: 'out--highlight', v: '[1] Clinic Management System' },
-      { t: 'out', v: '    → Complete appointment & admin platform' },
+      { t: 'out', v: '    → Real-time booking & admin platform (Firebase/Cloudinary)' },
       { t: 'out', v: '    → Live: cms-ochre-eta.vercel.app' },
       { t: 'out', v: '' },
       { t: 'out--highlight', v: '[2] Mla3b El Sadat' },
@@ -72,10 +67,10 @@
 
     status: () => [
       { t: 'out--highlight', v: '● ONLINE' },
-      { t: 'out', v: 'Currently building real-world software systems.' },
-      { t: 'out', v: 'Specializing in Full-Stack .NET development.' },
+      { t: 'out', v: 'Building production-ready web applications with JS/Node/Firebase.' },
+      { t: 'out', v: 'Actively expanding into C# and .NET full-stack.' },
       { t: 'out', v: 'Final year @ Delta Technological University.' },
-      { t: 'out', v: 'Open to collaboration and opportunities.' },
+      { t: 'out', v: 'Available for freelance projects & contracts.' },
     ],
 
     clear: () => {

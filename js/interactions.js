@@ -33,7 +33,7 @@
 
       // Hover state on interactive elements
       const interactives = document.querySelectorAll(
-        'a, button, .skill-tag, .project-card, .about-card, .build-card, .contact__link'
+        'a, button, input, textarea, .skill-chip, .project-card, .about-card, .service-card, .building-card, .faq-item__header, .contact__channel-link'
       );
       interactives.forEach(el => {
         el.addEventListener('mouseenter', () => cursorEl.classList.add('cursor--hover'));
