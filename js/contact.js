@@ -181,10 +181,10 @@
         if (formStatus) {
           formStatus.className = 'form-status form-status--success visible';
           formStatus.innerHTML = `
-            <div class="form-status__icon">✓</div>
+            <div class="form-status__icon" aria-hidden="true">✓</div>
             <div>
-              <strong>Thank you, ${escapeHtml(name)}!</strong>
-              <p>Your message has been received. I'll get back to you within 24 hours.</p>
+              <strong>Message sent</strong>
+              <p>Message sent — I'll get back to you soon.</p>
             </div>
           `;
           setTimeout(() => {
@@ -193,22 +193,23 @@
         }
 
         if (window.showToast) {
-          window.showToast('✓ Message sent successfully!');
+          window.showToast("✓ Message sent — I'll get back to you soon.");
         }
       } catch (err) {
         console.error('Error sending message:', err);
+        const errMsg = err && err.message ? escapeHtml(err.message) : 'Network or connection issue';
         if (formStatus) {
           formStatus.className = 'form-status form-status--error visible';
           formStatus.innerHTML = `
-            <div class="form-status__icon">✕</div>
+            <div class="form-status__icon" aria-hidden="true">✕</div>
             <div>
-              <strong>Failed to send message</strong>
-              <p>Please reach out directly via WhatsApp or Email.</p>
+              <strong>Couldn't send message</strong>
+              <p>${errMsg}. Feel free to message me directly via WhatsApp at +20 109 172 8680.</p>
             </div>
           `;
         }
         if (window.showToast) {
-          window.showToast('✕ Error sending message. Please contact via WhatsApp.');
+          window.showToast('✕ Error sending message. Please reach out via WhatsApp.');
         }
       } finally {
         if (submitBtn) submitBtn.disabled = false;
