@@ -77,8 +77,8 @@
   if (roleEl && !prefersReducedMotion) {
     const roles = [
       'Freelance Web Developer',
-      'Full-Stack JS / Node.js Builder',
-      'Expanding into .NET Full-Stack',
+      'Vanilla Web Craftsman (HTML/CSS/JS)',
+      'Backend & APIs (Firebase / Node.js)',
       'Software Engineering Student',
     ];
     let rIdx = 0, cIdx = 0, deleting = false;
