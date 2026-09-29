@@ -1,5 +1,5 @@
 /**
- * contact.js — Handles Firebase Firestore message submissions
+ * contact.js — Handles Firebase Firestore message submissions with bilingual validation & feedback
  * Features: Client-side validation, rate-limiting, spinner state, toast feedback.
  */
 (function () {
@@ -19,20 +19,19 @@
 
   let db = null;
 
-  // Initialize Firestore & Analytics
   function initFirebase() {
     try {
       if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-        const app = firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
         if (firebase.analytics) {
-          try { firebase.analytics(); } catch (e) { /* analytics in private browsing fallback */ }
+          try { firebase.analytics(); } catch (e) {}
         }
       } else if (typeof firebase !== 'undefined' && firebase.apps.length) {
         db = firebase.firestore();
       }
     } catch (err) {
-      console.warn('Firebase initialization error:', err);
+      console.warn('Firebase initialization note:', err);
     }
   }
 
@@ -54,7 +53,7 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
-  function setError(inputEl, msg) {
+  function setError(inputEl, msgKey, fallback) {
     const parent = inputEl.closest('.form-group');
     if (!parent) return;
     parent.classList.add('has-error');
@@ -64,6 +63,7 @@
       errorEl.className = 'form-error';
       parent.appendChild(errorEl);
     }
+    const msg = window.portfolioI18n ? window.portfolioI18n.get(msgKey, fallback) : fallback;
     errorEl.textContent = msg;
   }
 
@@ -75,7 +75,6 @@
     if (errorEl) errorEl.textContent = '';
   }
 
-  // ── INIT FORM ────────────────────────────────────────────────────────────
   function initContactForm() {
     initFirebase();
 
@@ -104,9 +103,9 @@
       // Check rate limiting
       const cooldown = isRateLimited();
       if (cooldown > 0) {
-        if (window.showToast) {
-          window.showToast(`⏳ Please wait ${cooldown}s before sending another message.`);
-        }
+        const rawMsg = window.portfolioI18n ? window.portfolioI18n.get('contact_cooldown', `⏳ Please wait ${cooldown}s before sending another message.`) : `⏳ Please wait ${cooldown}s before sending another message.`;
+        const msg = rawMsg.replace('{s}', cooldown);
+        if (window.showToast) window.showToast(msg);
         return;
       }
 
@@ -119,28 +118,28 @@
       const message = messageInput ? messageInput.value.trim() : '';
 
       if (!name) {
-        setError(nameInput, 'Please enter your name.');
+        setError(nameInput, 'contact_val_name', 'Please enter your name.');
         isValid = false;
       }
 
       if (!email) {
-        setError(emailInput, 'Please enter your email address.');
+        setError(emailInput, 'contact_val_email', 'Please enter your email address.');
         isValid = false;
       } else if (!validateEmail(email)) {
-        setError(emailInput, 'Please provide a valid email address.');
+        setError(emailInput, 'contact_val_email_valid', 'Please provide a valid email address.');
         isValid = false;
       }
 
       if (!subject) {
-        setError(subjectInput, 'Please provide a subject.');
+        setError(subjectInput, 'contact_val_subject', 'Please provide a subject.');
         isValid = false;
       }
 
       if (!message) {
-        setError(messageInput, 'Please write your message.');
+        setError(messageInput, 'contact_val_message', 'Please write your message.');
         isValid = false;
       } else if (message.length < 10) {
-        setError(messageInput, 'Message should be at least 10 characters.');
+        setError(messageInput, 'contact_val_message_len', 'Message should be at least 10 characters.');
         isValid = false;
       }
 
@@ -148,7 +147,8 @@
 
       // Set Loading State
       if (submitBtn) submitBtn.disabled = true;
-      if (btnText) btnText.textContent = 'Sending Message...';
+      const sendingText = window.portfolioI18n ? window.portfolioI18n.get('contact_form_sending', 'Sending Message...') : 'Sending Message...';
+      if (btnText) btnText.textContent = sendingText;
       if (btnSpinner) btnSpinner.style.display = 'inline-block';
 
       const payload = {
@@ -162,29 +162,31 @@
       };
 
       try {
-        if (db && firebaseConfig.apiKey !== "AIzaSyDummyKeyReplaceWithYourActualKey") {
-          // Real Firebase Firestore write with server timestamp
+        if (db) {
           await db.collection('portfolio_messages').add({
             ...payload,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
           });
         } else {
-          // Simulation fallback if keys are default or testing locally
+          // Simulation fallback
           await new Promise(resolve => setTimeout(resolve, 800));
-          console.info('Message stored successfully in portfolio_messages (local test mode):', payload);
         }
 
         lastSubmitTime = Date.now();
 
         // Success UI
         form.reset();
+        const successHeading = window.portfolioI18n ? window.portfolioI18n.get('contact_success_heading', 'Message sent') : 'Message sent';
+        const successDesc = window.portfolioI18n ? window.portfolioI18n.get('contact_success_desc', "Thank you! I will get back to you as soon as possible.") : "Thank you! I will get back to you as soon as possible.";
+        const successToast = window.portfolioI18n ? window.portfolioI18n.get('contact_success_toast', "✓ Message sent — I'll get back to you soon.") : "✓ Message sent — I'll get back to you soon.";
+
         if (formStatus) {
           formStatus.className = 'form-status form-status--success visible';
           formStatus.innerHTML = `
             <div class="form-status__icon" aria-hidden="true">✓</div>
             <div>
-              <strong>Message sent</strong>
-              <p>Message sent — I'll get back to you soon.</p>
+              <strong>${escapeHtml(successHeading)}</strong>
+              <p>${escapeHtml(successDesc)}</p>
             </div>
           `;
           setTimeout(() => {
@@ -193,27 +195,31 @@
         }
 
         if (window.showToast) {
-          window.showToast("✓ Message sent — I'll get back to you soon.");
+          window.showToast(successToast);
         }
       } catch (err) {
         console.error('Error sending message:', err);
-        const errMsg = err && err.message ? escapeHtml(err.message) : 'Network or connection issue';
+        const errHeading = window.portfolioI18n ? window.portfolioI18n.get('contact_error_heading', "Couldn't send message") : "Couldn't send message";
+        const errDesc = window.portfolioI18n ? window.portfolioI18n.get('contact_error_desc', "Feel free to message me directly via WhatsApp at +20 109 172 8680.") : "Feel free to message me directly via WhatsApp at +20 109 172 8680.";
+        const errToast = window.portfolioI18n ? window.portfolioI18n.get('contact_error_toast', "✕ Error sending message. Please reach out via WhatsApp.") : "✕ Error sending message. Please reach out via WhatsApp.";
+
         if (formStatus) {
           formStatus.className = 'form-status form-status--error visible';
           formStatus.innerHTML = `
             <div class="form-status__icon" aria-hidden="true">✕</div>
             <div>
-              <strong>Couldn't send message</strong>
-              <p>${errMsg}. Feel free to message me directly via WhatsApp at +20 109 172 8680.</p>
+              <strong>${escapeHtml(errHeading)}</strong>
+              <p>${escapeHtml(errDesc)}</p>
             </div>
           `;
         }
         if (window.showToast) {
-          window.showToast('✕ Error sending message. Please reach out via WhatsApp.');
+          window.showToast(errToast);
         }
       } finally {
         if (submitBtn) submitBtn.disabled = false;
-        if (btnText) btnText.textContent = 'Send Message';
+        const submitLabel = window.portfolioI18n ? window.portfolioI18n.get('contact_form_submit', 'Send Message') : 'Send Message';
+        if (btnText) btnText.textContent = submitLabel;
         if (btnSpinner) btnSpinner.style.display = 'none';
       }
     });

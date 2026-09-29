@@ -1,5 +1,5 @@
 /**
- * interactions.js — Cursor, clipboard, toast, mobile nav
+ * interactions.js — Custom cursor, clipboard actions, toast notifications, mobile drawer & smooth scroll
  */
 (function () {
   'use strict';
@@ -17,28 +17,34 @@
       document.addEventListener('mousemove', e => {
         mX = e.clientX;
         mY = e.clientY;
-        // Dot is instant
-        dot.style.left  = mX + 'px';
-        dot.style.top   = mY + 'px';
+        if (dot) {
+          dot.style.left = mX + 'px';
+          dot.style.top  = mY + 'px';
+        }
       });
 
-      // Ring follows with lerp for smooth trail
       (function lerp() {
-        cX += (mX - cX) * 0.12;
-        cY += (mY - cY) * 0.12;
-        ring.style.left = cX + 'px';
-        ring.style.top  = cY + 'px';
+        cX += (mX - cX) * 0.14;
+        cY += (mY - cY) * 0.14;
+        if (ring) {
+          ring.style.left = cX + 'px';
+          ring.style.top  = cY + 'px';
+        }
         requestAnimationFrame(lerp);
       })();
 
-      // Hover state on interactive elements
-      const interactives = document.querySelectorAll(
-        'a, button, input, textarea, .skill-chip, .project-card, .about-card, .service-card, .building-card, .faq-item__header, .contact__channel-link'
-      );
-      interactives.forEach(el => {
-        el.addEventListener('mouseenter', () => cursorEl.classList.add('cursor--hover'));
-        el.addEventListener('mouseleave', () => cursorEl.classList.remove('cursor--hover'));
-      });
+      // Interactive hover hooks
+      function attachCursorHovers() {
+        const interactives = document.querySelectorAll(
+          'a, button, input, textarea, .skill-chip, .project-card, .about-card, .service-card, .education-card, .experience-card, .feedback-card, .contact__channel-link, .nav__lang-btn'
+        );
+        interactives.forEach(el => {
+          el.addEventListener('mouseenter', () => cursorEl.classList.add('cursor--hover'));
+          el.addEventListener('mouseleave', () => cursorEl.classList.remove('cursor--hover'));
+        });
+      }
+
+      attachCursorHovers();
     }
   }
 
@@ -46,7 +52,7 @@
   const toast = document.getElementById('toast');
   let toastTimer;
 
-  function showToast(msg, duration = 2500) {
+  function showToast(msg, duration = 3000) {
     if (!toast) return;
     clearTimeout(toastTimer);
     toast.textContent = msg;
@@ -54,7 +60,6 @@
     toastTimer = setTimeout(() => toast.classList.remove('visible'), duration);
   }
 
-  // Expose globally so other modules can use it
   window.showToast = showToast;
 
   /* ── COPY TO CLIPBOARD ─────────────────────────────────────────────────── */
@@ -73,33 +78,41 @@
     ta.value = text;
     ta.style.cssText = 'position:fixed;opacity:0';
     document.body.appendChild(ta);
-    ta.focus(); ta.select();
-    try { document.execCommand('copy'); showToast(successMsg || '✓ Copied'); }
-    catch { showToast('Copy manually: ' + text, 4000); }
+    ta.focus();
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showToast(successMsg || '✓ Copied');
+    } catch (e) {
+      showToast('Copy manually: ' + text, 4000);
+    }
     document.body.removeChild(ta);
   }
 
-  // Wire up all copy buttons
   document.addEventListener('click', e => {
     const btn = e.target.closest('[data-copy]');
     if (btn) {
       const value = btn.dataset.copy;
-      copyToClipboard(value, '✓ ' + value + ' copied!');
+      const isAr = document.documentElement.getAttribute('lang') === 'ar';
+      const msg = isAr ? `✓ تم نسخ الرقم: ${value}` : `✓ ${value} copied!`;
+      copyToClipboard(value, msg);
     }
   });
 
-  /* ── MOBILE NAVIGATION ─────────────────────────────────────────────────── */
-  const toggle  = document.getElementById('navToggle');
-  const menu    = document.getElementById('navMenu');
+  /* ── MOBILE NAVIGATION DRAWER ─────────────────────────────────────────── */
+  const toggle   = document.getElementById('navToggle');
+  const menu     = document.getElementById('navMenu');
   const navLinks = menu ? menu.querySelectorAll('.nav__link') : [];
 
   function openMenu() {
+    if (!menu || !toggle) return;
     menu.classList.add('open');
     toggle.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
   }
 
   function closeMenu() {
+    if (!menu || !toggle) return;
     menu.classList.remove('open');
     toggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
@@ -130,10 +143,15 @@
   /* ── SMOOTH SCROLL for anchor links ───────────────────────────────────── */
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', e => {
-      const target = document.querySelector(anchor.getAttribute('href'));
+      const targetId = anchor.getAttribute('href');
+      if (targetId === '#' || !targetId) return;
+      const target = document.querySelector(targetId);
       if (target) {
         e.preventDefault();
         target.scrollIntoView({ behavior: 'smooth' });
+        if (history.pushState) {
+          history.pushState(null, null, targetId);
+        }
       }
     });
   });
